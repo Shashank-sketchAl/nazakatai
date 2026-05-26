@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
@@ -72,7 +73,7 @@ Always follow up a recommendation with a question to keep the conversation going
       }));
 
       const responseStream = await ai.models.generateContentStream({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-2.0-flash",
         contents: contents,
         config: {
           systemInstruction: systemPrompt,
