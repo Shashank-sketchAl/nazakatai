@@ -1,0 +1,6 @@
+{
+  "name": "Nazakatai",
+  "description": "A luxury AI-powered ethnic fashion atelier inspired by Lucknowi heritage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
