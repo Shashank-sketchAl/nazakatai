@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Heart, Eye, ShoppingBag, RefreshCw, Sparkles, ArrowLeft } from 'lucide-react';
+import { Send, Heart, Eye, ShoppingBag, RefreshCw, Sparkles, Gem } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { Message, ProfileState, RecommendedProduct } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -387,27 +387,34 @@ function ChatMessage({ message }: { message: Message }) {
         {isUser ? 'You' : 'Nazakatai'}
       </p>
 
-      {/* Product cards */}
+      {/* Product recommendation panels */}
       {productsList.map((products, i) => (
         <motion.div
           key={i}
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5, ease: [0.16,1,0.3,1] }}
-          className="mt-4 w-full"
+          transition={{ delay: 0.18, duration: 0.55, ease: [0.16,1,0.3,1] }}
+          className="mt-5 w-full ml-0 sm:ml-12"
         >
-          <p className="text-[8px] uppercase tracking-[0.25em] text-gold/70 font-bold ml-12 mb-3">
-            Curated for you — {products.length} look{products.length > 1 ? 's' : ''}
-          </p>
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 pl-0">
+          {/* Dossier header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-gold/40 to-transparent" />
+            <span className="text-[8px] uppercase tracking-[0.3em] font-bold text-gold flex items-center gap-1.5">
+              <Gem className="w-2.5 h-2.5" />
+              Styling Dossier · {products.length} Recommendation{products.length > 1 ? 's' : ''}
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-l from-gold/40 to-transparent" />
+          </div>
+
+          <div className="flex flex-col gap-4">
             {products.map((product, idx) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + idx * 0.12, duration: 0.45, ease: [0.16,1,0.3,1] }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22 + idx * 0.14, duration: 0.5, ease: [0.16,1,0.3,1] }}
               >
-                <ProductCard product={product} />
+                <ProductCard product={product} index={idx} />
               </motion.div>
             ))}
           </div>
@@ -417,87 +424,165 @@ function ChatMessage({ message }: { message: Message }) {
   );
 }
 
-// ─── ProductCard ──────────────────────────────────────────────────────────────
+// ─── ProductCard — Text-Only Luxury Editorial ─────────────────────────────────
 
-function ProductCard({ product }: { product: RecommendedProduct }) {
+const CURATION_LABELS = [
+  'Curated by Nazakatai',
+  'Heritage Pick',
+  'Editor\'s Recommendation',
+  'Wedding Atelier',
+  'Timeless Selection',
+  'AI Recommended',
+];
+
+function ProductCard({ product, index }: { product: RecommendedProduct; index: number }) {
   const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(false);
+  const label = CURATION_LABELS[index % CURATION_LABELS.length];
 
   return (
-    <div className="product-card-luxury group bg-white border border-gold/20 flex flex-col w-[240px] shrink-0 shadow-soft-luxury overflow-hidden cursor-pointer">
-      {/* Image */}
-      <div
-        className="relative h-[280px] overflow-hidden bg-sand/10 arch-simple"
-        onClick={() => navigate(`/product/${product.id}`)}
-      >
-        <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-10 bg-ivory/95 backdrop-blur-sm text-[8px] font-bold uppercase tracking-[0.2em] text-ink border border-gold/30 px-3 py-1 shadow-sm whitespace-nowrap">
-          Curated For You
-        </div>
+    <motion.div
+      whileHover={{ y: -3, boxShadow: '0 20px 60px rgba(200,155,60,0.15), 0 4px 20px rgba(0,0,0,0.07)' }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="group relative cursor-pointer"
+      style={{
+        background: 'linear-gradient(135deg, #FAF7F2 0%, #F5EFE6 100%)',
+        border: '1px solid rgba(200,155,60,0.2)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.05), 0 1px 4px rgba(200,155,60,0.08)',
+      }}
+      onClick={() => navigate(`/product/${product.id}`)}
+    >
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px]"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(200,155,60,0.6), transparent)' }}
+      />
 
-        <button
-          className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border border-gold/20 flex items-center justify-center shadow-sm"
-          onClick={e => { e.stopPropagation(); setWishlisted(w => !w); }}
-        >
-          <Heart
-            className="w-3 h-3"
-            strokeWidth={1.5}
-            color={wishlisted ? '#A44B2A' : '#5C5248'}
-            fill={wishlisted ? '#A44B2A' : 'none'}
-          />
-        </button>
+      <div className="p-6 md:p-7">
 
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          loading="lazy"
-          className="w-full h-full object-cover arch-simple transition-transform duration-[900ms] group-hover:scale-110 border-[4px] border-white"
-        />
-
-        <div className="absolute inset-0 bg-ink/25 opacity-0 group-hover:opacity-100 transition-opacity duration-400 arch-simple flex items-end justify-center pb-5">
-          <span className="text-[8px] font-bold uppercase tracking-widest text-white bg-maroon/85 backdrop-blur-sm px-4 py-1.5">
-            View Details
+        {/* Header row — curation label + wishlist */}
+        <div className="flex items-start justify-between mb-5">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5"
+            style={{
+              background: 'rgba(200,155,60,0.08)',
+              border: '1px solid rgba(200,155,60,0.25)',
+              fontSize: 8,
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#C89B3C',
+            }}
+          >
+            <Sparkles style={{ width: 9, height: 9 }} />
+            {label}
           </span>
-        </div>
-      </div>
 
-      {/* Info */}
-      <div className="p-3.5 flex flex-col flex-1">
-        <div className="flex justify-between items-start mb-1.5">
-          <div className="flex-1 pr-2 min-w-0">
-            <p className="text-[7px] uppercase tracking-[0.3em] text-gold font-bold mb-0.5 truncate">{product.brand}</p>
-            <h3 className="font-editorial text-[15px] leading-snug text-ink line-clamp-2">{product.name}</h3>
-          </div>
-          <div className="text-right shrink-0 mt-0.5">
-            <p className="text-[13px] font-bold text-ink">₹{product.price.toLocaleString('en-IN')}</p>
-            {product.mrp && product.mrp > product.price && (
-              <p className="text-[8px] line-through text-muted">₹{product.mrp.toLocaleString('en-IN')}</p>
-            )}
-          </div>
+          <button
+            onClick={e => { e.stopPropagation(); setWishlisted(w => !w); }}
+            className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-widest transition-colors"
+            style={{ color: wishlisted ? '#A44B2A' : '#8D8175' }}
+          >
+            <Heart
+              style={{ width: 12, height: 12 }}
+              strokeWidth={1.5}
+              fill={wishlisted ? '#A44B2A' : 'none'}
+            />
+            {wishlisted ? 'Saved' : 'Save'}
+          </button>
         </div>
 
-        <span className="self-start px-2 py-0.5 border border-gold/20 text-[7px] uppercase tracking-wider text-muted font-bold bg-sand/20 mb-2.5">
-          {product.fabric} · {product.color}
-        </span>
-
-        <p className="text-[9px] italic text-muted/80 border-l-2 border-gold/25 pl-2.5 leading-relaxed line-clamp-2 mb-3">
-          "{product.reason}"
+        {/* Brand */}
+        <p className="text-[9px] uppercase tracking-[0.3em] font-bold mb-1.5" style={{ color: '#C89B3C' }}>
+          {product.brand}
         </p>
 
-        <div className="mt-auto grid grid-cols-2 gap-1.5">
-          <button
-            onClick={() => navigate(`/product/${product.id}`)}
-            className="flex items-center justify-center gap-1 py-2.5 bg-maroon text-ivory text-[8px] font-bold uppercase tracking-wider hover:bg-maroon/85 transition-colors"
-          >
-            <Eye className="w-2.5 h-2.5" />View
-          </button>
-          <button
-            onClick={() => navigate(`/product/${product.id}`)}
-            className="flex items-center justify-center gap-1 py-2.5 bg-transparent border border-gold/30 text-ink text-[8px] font-bold uppercase tracking-wider hover:border-gold hover:text-gold transition-colors"
-          >
-            <ShoppingBag className="w-2.5 h-2.5" />Add
-          </button>
+        {/* Product name — dominant typographic element */}
+        <h3
+          className="font-editorial leading-tight mb-4 text-ink"
+          style={{ fontSize: 'clamp(20px, 4vw, 26px)', fontStyle: 'italic', fontWeight: 400, letterSpacing: '-0.01em' }}
+        >
+          {product.name}
+        </h3>
+
+        {/* Gold divider */}
+        <div className="mb-5 h-px" style={{ background: 'linear-gradient(90deg, rgba(200,155,60,0.5) 0%, rgba(200,155,60,0.1) 60%, transparent 100%)' }} />
+
+        {/* Styling reason — centerpiece copy */}
+        <p className="font-serif italic leading-relaxed mb-5"
+          style={{ fontSize: 13, color: '#5C5248', fontStyle: 'italic' }}
+        >
+          &ldquo;{product.reason}&rdquo;
+        </p>
+
+        {/* Metadata pills row */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          <div className="px-3 py-1.5" style={{ background: 'rgba(23,20,18,0.04)', border: '1px solid rgba(23,20,18,0.08)' }}>
+            <p className="text-[7px] uppercase tracking-[0.25em] font-bold mb-0.5" style={{ color: '#8D8175' }}>Fabric</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#171412' }}>{product.fabric}</p>
+          </div>
+          <div className="px-3 py-1.5" style={{ background: 'rgba(23,20,18,0.04)', border: '1px solid rgba(23,20,18,0.08)' }}>
+            <p className="text-[7px] uppercase tracking-[0.25em] font-bold mb-0.5" style={{ color: '#8D8175' }}>Colour</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#171412' }}>{product.color}</p>
+          </div>
+        </div>
+
+        {/* Bottom divider */}
+        <div className="mb-5 h-px" style={{ background: 'rgba(200,155,60,0.15)' }} />
+
+        {/* Price + CTAs */}
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[9px] uppercase tracking-[0.2em] font-bold mb-0.5" style={{ color: '#8D8175' }}>Atelier Price</p>
+            <div className="flex items-baseline gap-2">
+              <p className="font-serif font-bold" style={{ fontSize: 20, color: '#171412' }}>
+                ₹{product.price.toLocaleString('en-IN')}
+              </p>
+              {product.mrp && product.mrp > product.price && (
+                <p className="text-[10px] line-through" style={{ color: '#8D8175' }}>
+                  ₹{product.mrp.toLocaleString('en-IN')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={e => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+              className="flex items-center gap-1.5 px-5 py-3 text-white font-bold uppercase tracking-widest"
+              style={{
+                background: '#4A1F1B',
+                fontSize: 8,
+                letterSpacing: '0.2em',
+                color: '#FFFFFF',
+              }}
+            >
+              <Eye style={{ width: 10, height: 10 }} />
+              View Details
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.04, borderColor: '#C89B3C', color: '#C89B3C' }}
+              whileTap={{ scale: 0.97 }}
+              onClick={e => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+              className="flex items-center gap-1.5 px-5 py-3 font-bold uppercase tracking-widest"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(23,20,18,0.2)',
+                color: '#171412',
+                fontSize: 8,
+                letterSpacing: '0.2em',
+              }}
+            >
+              <ShoppingBag style={{ width: 10, height: 10 }} />
+              Trousseau
+            </motion.button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'rgba(200,155,60,0.15)' }} />
+    </motion.div>
   );
 }
